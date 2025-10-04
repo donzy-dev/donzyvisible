@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>shiroyx</title>
+  <style>
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'monospace', sans-serif;
+    }
+    body {
+  background: url('https://files.catbox.moe/wk7yan.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: white;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    .login-box {
+      border-radius: 24px;
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .login-box img {
+      width: 220px;
+      border-radius: 50%;
+      margin-bottom: 20px;
+    }
+    .login-box p {
+      color: white;
+      font-style: italic;
+      font-size: 12px;
+      margin-bottom: 30px;
+    }
+    input {
+      width: 100%;
+      padding: 22px;
+      margin: 10px 0;
+      border: 1px solid red;
+      border-radius: 39px;
+      background: rgba(255,255,255,0.05);
+      color: white;
+      font-size: 20px;
+    }
+    input::placeholder {
+      color: white;
+    }
+    input:focus {
+      outline: none;
+      border-color: #00b;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 15px;
+      background: red;
+      color: black;
+      font-weight: bold;
+      border: none;
+      border-radius: 24px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Error Toast Style */
+    .error-toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(30, 30, 30, 0.85);
+      backdrop-filter: blur(12px);
+      color: white;
+      padding: 20px 24px;
+      border-radius: 20px;
+      box-shadow: 0 0 30px red;
+      width: 90%;
+      max-width: 340px;
+      text-align: left;
+      animation: fadeInCenter 0.3s ease;
+      z-index: 9999;
+    }
+    @keyframes fadeInCenter {
+     from { opacity: 0; transform: translate(-50%, -60%); }
+     to   { opacity: 1; transform: translate(-50%, -50%); }
+    }
+    .error-toast .icon {
+      color: gold;
+      font-size: 20px;
+      margin-bottom: 5px;
+    }
+    .error-toast .title {
+      color: red;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .error-toast .message {
+      margin: 61px 0;
+      font-size: 19px;
+      color: white;
+      white-space: pre-wrap;
+    }
+    .error-toast .tagline {
+      font-size: 11px;
+      opacity: 0.4;
+      font-style: italic;
+    }
+    .error-toast .close {
+      font-size: 12px;
+      color: red;
+      font-weight: bold;
+      text-align: right;
+      margin-top: 5px;
+      cursor: pointer;
+    }
+    @keyframes fadeInRight {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-box">
+    <img src="https://files.catbox.moe/ypzaap.jpg" alt="logo" />
+    <p>Sbiroyx Plyter</p>
+    <input type="text" id="username" placeholder="Username" oninput="checkLoginBtn()"/>
+    <input type="password" id="password" placeholder="Password" oninput="checkLoginBtn()"/>
+    <button id="loginBtn" onclick="login()" disabled>LOGIN</button>
+  </div>
+
+  <!-- Error Box -->
+  <div id="errorBox" class="error-toast" style="display:none;">
+    <div class="icon">⚠️</div>
+    <div class="title">Error</div>
+    <div class="message" id="errorMsg">Username atau Password salah!</div>
+    <div class="tagline">Shiroyx Plyter</div>
+    <div class="close" onclick="closeError()">CLOSE</div>
+  </div>
+
+  <script>
+    const loginBtn = document.getElementById("loginBtn");
+
+    function checkLoginBtn() {
+      const u = document.getElementById("username").value.trim();
+      const p = document.getElementById("password").value.trim();
+      loginBtn.disabled = !(u && p);
+    }
+
+    function showError(msg) {
+      document.getElementById("errorMsg").innerText = msg;
+      document.getElementById("errorBox").style.display = "block";
+    }
+
+    function closeError() {
+      document.getElementById("errorBox").style.display = "none";
+    }
+
+    async function login() {
+      const u = document.getElementById("username").value.trim();
+      const p = document.getElementById("password").value.trim();
+
+      // Ganti URL GitHub JSON token kamu
+      const akunUrl = "https://raw.githubusercontent.com/evilcrasher-ctrl/security/refs/heads/main/akunb.json";
+      try {
+        const res = await fetch(akunUrl + "?t=" + Date.now());
+        const data = await res.json();
+        const found = data.find(a => a.username === u && a.password === p);
+        if (found) {
+  localStorage.setItem("username", found.username);
+  localStorage.setItem("password", found.password);
+  localStorage.setItem("role", found.role);
+  localStorage.setItem("expired", found.expired);
+  window.location.href = "dashboard.html";
+} else {
+  showError("Salah Beli Akses Hubungi @Zxyro01!");
+}
+      } catch (e) {
+        showError("Gagal mengambil data akun.");
+      }
+    }
+  </script>
+
+</body>
+</html>
